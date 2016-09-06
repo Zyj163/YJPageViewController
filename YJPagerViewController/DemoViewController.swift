@@ -28,7 +28,7 @@ class DemoViewController: YJPagerViewController {
         dataSource = self
         delegate = self
         
-        setup([TempTableViewController.self, TempTableViewController.self, TempTableViewController.self, TempTableViewController.self, TempTableViewController.self, TempTableViewController.self, TempTableViewController.self, TempTableViewController.self, TempTableViewController.self, TempTableViewController.self, TempTableViewController.self, TempTableViewController.self, TempTableViewController.self, TempTableViewController.self, TempTableViewController.self, TempTableViewController.self, TempTableViewController.self], titles: ["321", "123", "321", "123", "321", "123", "321", "123", "321", "123", "321", "123", "321", "123", "321", "123", "321"])
+        setup([TempTableViewController.self, TempCollectionViewController.self, TempScrollViewController.self, TempTableViewController2.self, TempCollectionViewController2.self, TempNoScrollViewController.self, TempTableViewController.self, TempTableViewController.self, TempTableViewController.self, TempTableViewController.self, TempTableViewController.self, TempTableViewController.self, TempTableViewController.self, TempTableViewController.self, TempTableViewController.self, TempTableViewController.self, TempTableViewController.self], titles: ["321", "123", "321", "123", "321", "123", "321", "123", "321", "123", "321", "123", "321", "123", "321", "123", "321"])
         //topView可以不添加如果不需要
         topView = UIView()
         topView?.backgroundColor = UIColor(red: 0.3, green: 0.2, blue: 0.5, alpha: 1)
@@ -36,7 +36,16 @@ class DemoViewController: YJPagerViewController {
         //如果有topView但不需要滚动，可修改为false
 //        needScrollTopViewIfHas = false
         
+        titlesView = YJTitlesView()
+        
         titleViewH = 40
+        
+        titlesView?.titles = ["tableView1", "collectionView", "scrollView", "tableView2", "collectionView2", "noScroll", "321", "123", "321", "123", "321", "123", "321", "123", "321", "123", "321"]
+        titlesView!.selectedIdx = 0
+        
+        titlesView!.selectedIdxHanlder = {
+            self.changeView($0, idx: $1, animation: true)
+        }
     }
 
 }
@@ -44,19 +53,56 @@ class DemoViewController: YJPagerViewController {
 extension DemoViewController: YJPageViewControllerDataSource {
     //提供每个子控制器的初始化方法
     func pageViewController(subVcForType: UIViewController.Type, title: String?, idx: Int) -> UIViewController {
-        return TempTableViewController()
+        if subVcForType is TempTableViewController.Type {
+            return TempTableViewController()
+        }else if subVcForType is TempCollectionViewController.Type {
+            return TempCollectionViewController(collectionViewLayout: UICollectionViewFlowLayout())
+        }else if subVcForType is TempScrollViewController.Type {
+            return TempScrollViewController(nibName: "TempScrollViewController", bundle: nil)
+        }else if subVcForType is TempTableViewController2.Type {
+            return TempTableViewController2()
+        }else if subVcForType is TempCollectionViewController2.Type {
+            return TempCollectionViewController2()
+        }else if subVcForType is TempNoScrollViewController.Type {
+            return TempNoScrollViewController()
+        }
+        else {
+            return UIViewController()
+        }
     }
     //提供子控制器中需要监听的UIScrollView
     func pageViewControllerObserveredScrollView(subVc: UIViewController, title: String?, idx: Int) -> UIScrollView? {
-        let subVc = subVc as! TempTableViewController
-        return subVc.tableView
+        if subVc.self is TempTableViewController {
+            let subVc = subVc as! TempTableViewController
+            return subVc.tableView
+        }else if subVc.self is TempCollectionViewController {
+            let subVc = subVc as! TempCollectionViewController
+            return subVc.collectionView
+        }else if subVc.self is TempScrollViewController {
+            let subVc = subVc as! TempScrollViewController
+            return subVc.scrollView
+        }else if subVc.self is TempTableViewController2 {
+            let subVc = subVc as! TempTableViewController2
+            return subVc.tableView
+        }else if subVc.self is TempCollectionViewController2 {
+            let subVc = subVc as! TempCollectionViewController2
+            return subVc.collectionView
+        }
+        else {
+            return nil
+        }
     }
 }
 
 extension DemoViewController: YJPageViewControllerDelegate {
     //切换子控制器后的回调
     func pageViewController(didSelectedIdx index: Int) {
-        print(index)
+        self.titlesView!.selectedIdx = index
+    }
+    
+    //当前pageView的contentOffset，如果想给titlesView加动画，可以在这里加，或者在这里更早的选择selectedIdx
+    func pageViewController(didScroll contentOffset: CGPoint) {
+        
     }
 }
 

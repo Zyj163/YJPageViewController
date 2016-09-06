@@ -10,6 +10,7 @@ import UIKit
 
 @objc protocol YJPageViewControllerDelegate: NSObjectProtocol {
     optional func pageViewController(didSelectedIdx index: Int)
+    optional func pageViewController(didScroll contentOffset: CGPoint)
 }
 
 @objc protocol YJPageViewControllerDataSource: NSObjectProtocol {
@@ -57,8 +58,6 @@ class YJPagerViewController: UIViewController {
     
     private var memCache: YJCacheManager?
     
-    private var hasTitles: Bool = true
-    
     private var _currentVc : UIViewController?
     /// 当前展示的子控制器
     var currentVc: UIViewController? {
@@ -67,8 +66,15 @@ class YJPagerViewController: UIViewController {
     
     private var _currentIdx: Int = 0 {
         didSet {
-            if hasTitles {
-                titlesView.selectedIdx = _currentIdx
+            if _currentIdx == oldValue {
+                return
+            }
+            self.changeView(oldValue, idx: _currentIdx, animation: false)
+            
+            if let delegate = self.delegate {
+                if (delegate.respondsToSelector(#selector(YJPageViewControllerDelegate.pageViewController(didSelectedIdx:)))) {
+                    delegate.pageViewController!(didSelectedIdx: _currentIdx)
+                }
             }
         }
     }
@@ -90,20 +96,18 @@ class YJPagerViewController: UIViewController {
     
     private lazy var posRecords = [Int : CGPoint]()
     
-    private lazy var titlesView : YJTitlesView = { [weak self] in
-        let titlesView = YJTitlesView()
-        titlesView.selectedIdxHanlder = {
-            self!.changeView($0, idx: $1)
-            
-            if let delegate = self!.delegate {
-                if (delegate.respondsToSelector(#selector(YJPageViewControllerDelegate.pageViewController(didSelectedIdx:)))) {
-                    delegate.pageViewController!(didSelectedIdx: $1)
-                }
+    var titlesView : YJTitlesView? {
+        didSet {
+            titlesView?.removeFromSuperview()
+            if let titlesView = titlesView {
+                topViewContainer.addSubview(titlesView)
             }
         }
-        self!.topViewContainer.addSubview(titlesView)
-        return titlesView
-        }()
+    }
+    
+    private var hasTitles: Bool {
+        return titlesView != nil
+    }
     
     private lazy var topViewContainer : UIView = { [weak self] in
         let topViewContainer = UIView()
@@ -137,7 +141,6 @@ class YJPagerViewController: UIViewController {
     weak var delegate: YJPageViewControllerDelegate?
     weak var dataSource: YJPageViewControllerDataSource?
     
-    
     /// 是否记忆位置，即当再次回到某个子控制器时，要不要恢复到之前的位置
     var remeberLocation = true
     
@@ -157,9 +160,9 @@ class YJPagerViewController: UIViewController {
         
         if hasTitles {
             let y = hasTopView ? topView!.bounds.size.height : 0
-            titlesView.frame = CGRect(x: 0, y: y, width: view.bounds.size.width, height: titleViewH)
-            titlesView.scrollEnabled = titlesView.contentSize.width > titlesView.bounds.size.width
-            topH += titlesView.bounds.size.height
+            titlesView!.frame = CGRect(x: 0, y: y, width: view.bounds.size.width, height: titleViewH)
+            titlesView!.scrollEnabled = titlesView!.contentSize.width > titlesView!.bounds.size.width
+            topH += titlesView!.bounds.size.height
         }
         
         if hasTopView {
@@ -172,7 +175,7 @@ class YJPagerViewController: UIViewController {
             view.bringSubviewToFront(topViewContainer)
         }
         
-        let titlesViewH = (hasTitles ? titlesView.bounds.size.height : 0)
+        let titlesViewH = (hasTitles ? titlesView!.bounds.size.height : 0)
         var height: CGFloat = view.bounds.size.height - titlesViewH
         if let scrollView = view as? UIScrollView {
             height = view.bounds.size.height - titlesViewH - scrollView.contentInset.top - scrollView.contentInset.bottom
@@ -201,7 +204,7 @@ class YJPagerViewController: UIViewController {
      初始化设置，必须实现
      
      - parameter subVCs: 子控制器类型数组
-     - parameter titles: 子控制器标题数组
+     - parameter titles: 用来标记子控制器的名字
      */
     func setup(subVCs: [UIViewController.Type], titles: [String]? = nil) {
         vcClasses = generateElements(subVCs, titles: titles)
@@ -212,13 +215,6 @@ class YJPagerViewController: UIViewController {
         
         memCache = YJCacheManager()
         
-        hasTitles = titles == nil ? false : !titles!.isEmpty
-        
-        if hasTitles {
-            titlesView.titles = titles
-            titlesView.selectedIdx = 0
-        }
-        
         addVcToWindow(atIdx: 0)
     }
     
@@ -226,19 +222,14 @@ class YJPagerViewController: UIViewController {
         return YJSubVC.generateSome(subVCs, titles: titles)
     }
     
-    private func addVcToWindow(atIdx idx: Int) {
-        
-        let vc = getSubVc(atIdx: idx)
-        
+    private func addObserverFor(vc vc:UIViewController, atIdx idx: Int) {
         if let dataSource = dataSource {
             let subvc = vcClasses![idx]
             if let scrollView = dataSource.pageViewControllerObserveredScrollView(vc, title: subvc.title, idx: idx) {
+                
                 if (observeredScrollerViews[idx] != nil) {
                     return
                 }
-                
-                observeredScrollerViews[idx] = scrollView
-                scrollView.addObserver(self, forKeyPath: "contentOffset", options: [.New, .Old], context: nil)
                 
                 let topH = hasTopView ? topView!.frame.size.height : 0
                 scrollView.contentInset = UIEdgeInsets(top: topH, left: 0, bottom: 0, right: 0)
@@ -254,16 +245,27 @@ class YJPagerViewController: UIViewController {
                     
                     scrollView.setContentOffset(CGPoint(x: 0, y: -topH - preDis!), animated: false)
                 }
-                scrollView.showsVerticalScrollIndicator = false
+                
+                scrollView.addObserver(self, forKeyPath: "contentOffset", options: [.New, .Old], context: nil)
+                observeredScrollerViews[idx] = scrollView
             }
         }
+    }
+    
+    private func addVcToWindow(atIdx idx: Int) {
         
+        let vc = getSubVc(atIdx: idx)
+        
+        vc.willMoveToParentViewController(self)
         addChildViewController(vc)
         vc.didMoveToParentViewController(self)
+        
         pageView[idx] = vc.view
         displayVcs[idx] = vc
         
         _currentVc = vc
+        
+        addObserverFor(vc: vc, atIdx: idx)
     }
     
     private func getSubVc(atIdx idx: Int) -> UIViewController {
@@ -283,8 +285,8 @@ class YJPagerViewController: UIViewController {
         return vc!
     }
     
-    private func changeView(preIdx: Int, idx: Int) {
-        pageView.changeTo(idx, animation: false)
+    func changeView(preIdx: Int, idx: Int, animation: Bool) {
+        pageView.changeTo(idx, animation: animation)
         
         let gap = labs(idx - preIdx)
         
@@ -297,6 +299,7 @@ class YJPagerViewController: UIViewController {
     
     private func layoutChildViewControllers() {
         let currentPage = Int(round(Double(pageView.contentOffset.x/pageView.bounds.size.width)))
+        
         let start = currentPage == 0 ? currentPage : currentPage - 1
         let end = (currentPage == subVcsCount - 1) ? currentPage : currentPage + 1
         for idx in start...end {
@@ -306,7 +309,7 @@ class YJPagerViewController: UIViewController {
                 if let _ = displayVcs[idx] {
                     
                 } else {
-                    addVcToWindow(atIdx: idx)
+                   addVcToWindow(atIdx: idx)
                 }
             }else {
                 if let vc = displayVcs[idx] {
@@ -346,8 +349,9 @@ class YJPagerViewController: UIViewController {
         if memCache![idx] == nil {
             return false
         }
-        
-        if let scrollView = isScrollViewController(vc) {
+            
+        if let scrollView = scrollViewOf(subVc: vc, idx: idx) {
+            
             if var location = posRecords[idx] {
                 
                 if _needScrollTopViewIfHas {
@@ -357,7 +361,7 @@ class YJPagerViewController: UIViewController {
                     if preDis == nil && nowDis == nil {
                         location.y = -topView!.frame.size.height - (topDis.values.maxElement() ?? 0)
                     }
-                    
+                        
                     else if (preDis ?? 0) < (nowDis ?? 0) {
                         location.y = -topView!.frame.size.height - (preDis ?? 0)
                     }
@@ -367,6 +371,7 @@ class YJPagerViewController: UIViewController {
                 return true
             }
         }
+        
         return false
     }
     
@@ -374,24 +379,18 @@ class YJPagerViewController: UIViewController {
         if !remeberLocation {
             return
         }
-        if let scrollView = isScrollViewController(vc) {
-            let pos = scrollView.contentOffset
-            posRecords[idx] = pos
+        if let scrollView = scrollViewOf(subVc: vc, idx: idx) {
+            
+            if (-scrollView.contentOffset.y < topViewContainer.frame.maxY - (hasTitles ? titleViewH : 0)) {
+                let pos = scrollView.contentOffset
+                posRecords[idx] = pos
+            }
         }
     }
     
-    private func isScrollViewController(vc: UIViewController) -> UIScrollView? {
-        let childView = vc.view
-        
-        if childView is UIScrollView {
-            return childView as? UIScrollView
-            
-        }else {
-            for subview in childView.subviews {
-                if subview is UIScrollView {
-                    return subview as? UIScrollView
-                }
-            }
+    private func scrollViewOf(subVc vc: UIViewController, idx: Int) -> UIScrollView? {
+        if let dataSource = self.dataSource where dataSource.respondsToSelector(#selector(YJPageViewControllerDataSource.pageViewControllerObserveredScrollView(_:title:idx:))) {
+            return dataSource.pageViewControllerObserveredScrollView(vc, title: vcClasses![idx].title, idx: idx)
         }
         return nil
     }
@@ -409,6 +408,13 @@ class YJPagerViewController: UIViewController {
                 let absValue = newValue.y + topView!.frame.size.height
                 
                 let dis = topViewContainer.frame.origin.y + absValue
+                
+                if -newValue.y >= topViewContainer.frame.maxY - (hasTitles ? titleViewH : 0) {
+                    posRecords.removeValueForKey(currentIdx)
+                }
+                if let _ = posRecords[currentIdx] {
+                    return
+                }
                 
                 if (absValue >= 0) && (absValue <= topView!.frame.size.height) {
                     
@@ -437,6 +443,13 @@ class YJPagerViewController: UIViewController {
         }
     }
 
+    private func topViewFrame() -> CGRect {
+        if !hasTopView {
+            return CGRect.zero
+        }
+        let frame = topView!.convertRect(topView!.bounds, toView: view)
+        return frame
+    }
     
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
@@ -459,6 +472,9 @@ extension YJPagerViewController: UIScrollViewDelegate {
     func scrollViewDidScroll(scrollView: UIScrollView) {
         if scrollView === pageView {
             layoutChildViewControllers()
+            if let delegate = self.delegate where delegate.respondsToSelector(#selector(YJPageViewControllerDelegate.pageViewController(didScroll:))) {
+                delegate.pageViewController!(didScroll: scrollView.contentOffset)
+            }
         }
     }
     

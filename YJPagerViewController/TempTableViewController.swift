@@ -43,6 +43,7 @@ class TempTableViewController: UITableViewController {
 
         // Configure the cell...
         cell.backgroundColor = randomColor()
+        cell.textLabel?.text = "tableViewController"
 
         return cell
     }
