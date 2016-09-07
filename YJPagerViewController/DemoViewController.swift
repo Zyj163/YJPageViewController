@@ -28,7 +28,7 @@ class DemoViewController: YJPagerViewController {
         dataSource = self
         delegate = self
         
-        setup([TempTableViewController.self, TempCollectionViewController.self, TempScrollViewController.self, TempTableViewController2.self, TempCollectionViewController2.self, TempNoScrollViewController.self, TempTableViewController.self, TempTableViewController.self, TempTableViewController.self, TempTableViewController.self, TempTableViewController.self, TempTableViewController.self, TempTableViewController.self, TempTableViewController.self, TempTableViewController.self, TempTableViewController.self, TempTableViewController.self], titles: ["321", "123", "321", "123", "321", "123", "321", "123", "321", "123", "321", "123", "321", "123", "321", "123", "321"])
+        setup([TempTableViewController.self, TempCollectionViewController2.self, TempScrollViewController.self, TempTableViewController2.self, TempCollectionViewController2.self, TempTableViewController.self, TempTableViewController.self, TempTableViewController.self, TempTableViewController.self, TempTableViewController.self, TempTableViewController.self, TempTableViewController.self, TempTableViewController.self, TempTableViewController.self, TempTableViewController.self, TempTableViewController.self, TempTableViewController.self], titles: ["321", "123", "321", "123", "321", "123", "321", "123", "321", "123", "321", "123", "321", "123", "321", "123", "321"])
         //topView可以不添加如果不需要
         topView = UIView()
         topView?.backgroundColor = UIColor(red: 0.3, green: 0.2, blue: 0.5, alpha: 1)
@@ -63,8 +63,6 @@ extension DemoViewController: YJPageViewControllerDataSource {
             return TempTableViewController2()
         }else if subVcForType is TempCollectionViewController2.Type {
             return TempCollectionViewController2()
-        }else if subVcForType is TempNoScrollViewController.Type {
-            return TempNoScrollViewController()
         }
         else {
             return UIViewController()
