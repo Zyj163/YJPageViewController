@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		356F37CA1D7A71DF0000826A /* YJCalculate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 356F37C91D7A71DF0000826A /* YJCalculate.swift */; };
-		575742CE1D7D1E4500DCCBC6 /* TempCollectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 575742CD1D7D1E4500DCCBC6 /* TempCollectionViewController.swift */; };
 		575742F41D7D3D9100DCCBC6 /* TempScrollViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 575742F21D7D3D9100DCCBC6 /* TempScrollViewController.swift */; };
 		575742F51D7D3D9100DCCBC6 /* TempScrollViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 575742F31D7D3D9100DCCBC6 /* TempScrollViewController.xib */; };
 		575AD50A1D6E906500CEEF95 /* DemoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 575AD5091D6E906500CEEF95 /* DemoViewController.swift */; };
@@ -27,7 +26,6 @@
 
 /* Begin PBXFileReference section */
 		356F37C91D7A71DF0000826A /* YJCalculate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = YJCalculate.swift; sourceTree = "<group>"; };
-		575742CD1D7D1E4500DCCBC6 /* TempCollectionViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TempCollectionViewController.swift; sourceTree = "<group>"; };
 		575742F21D7D3D9100DCCBC6 /* TempScrollViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TempScrollViewController.swift; sourceTree = "<group>"; };
 		575742F31D7D3D9100DCCBC6 /* TempScrollViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = TempScrollViewController.xib; sourceTree = "<group>"; };
 		575AD5091D6E906500CEEF95 /* DemoViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DemoViewController.swift; sourceTree = "<group>"; };
@@ -84,7 +82,6 @@
 				57E7F8F21D6D67FB00515C67 /* YJTitlesView.swift */,
 				57E7F8F61D6DA8D300515C67 /* TempTableViewController.swift */,
 				5775A8CB1D7E550C0082A5DC /* TempTableViewController2.swift */,
-				575742CD1D7D1E4500DCCBC6 /* TempCollectionViewController.swift */,
 				5775A8CD1D7E5D910082A5DC /* TempCollectionViewController2.swift */,
 				575742F21D7D3D9100DCCBC6 /* TempScrollViewController.swift */,
 				575742F31D7D3D9100DCCBC6 /* TempScrollViewController.xib */,
@@ -175,7 +172,6 @@
 				57E7F8F71D6DA8D300515C67 /* TempTableViewController.swift in Sources */,
 				575AD50A1D6E906500CEEF95 /* DemoViewController.swift in Sources */,
 				356F37CA1D7A71DF0000826A /* YJCalculate.swift in Sources */,
-				575742CE1D7D1E4500DCCBC6 /* TempCollectionViewController.swift in Sources */,
 				57E7F8DB1D6D346100515C67 /* AppDelegate.swift in Sources */,
 				5775A8CC1D7E550C0082A5DC /* TempTableViewController2.swift in Sources */,
 				5775A8CE1D7E5D910082A5DC /* TempCollectionViewController2.swift in Sources */,

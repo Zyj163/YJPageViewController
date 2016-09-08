@@ -55,10 +55,8 @@ extension DemoViewController: YJPageViewControllerDataSource {
     func pageViewController(subVcForType: UIViewController.Type, title: String?, idx: Int) -> UIViewController {
         if subVcForType is TempTableViewController.Type {
             return TempTableViewController()
-        }else if subVcForType is TempCollectionViewController.Type {
-            return TempCollectionViewController(collectionViewLayout: UICollectionViewFlowLayout())
         }else if subVcForType is TempScrollViewController.Type {
-            return TempScrollViewController(nibName: "TempScrollViewController", bundle: nil)
+            return TempScrollViewController()
         }else if subVcForType is TempTableViewController2.Type {
             return TempTableViewController2()
         }else if subVcForType is TempCollectionViewController2.Type {
@@ -73,9 +71,6 @@ extension DemoViewController: YJPageViewControllerDataSource {
         if subVc.self is TempTableViewController {
             let subVc = subVc as! TempTableViewController
             return subVc.tableView
-        }else if subVc.self is TempCollectionViewController {
-            let subVc = subVc as! TempCollectionViewController
-            return subVc.collectionView
         }else if subVc.self is TempScrollViewController {
             let subVc = subVc as! TempScrollViewController
             return subVc.scrollView
