@@ -3,6 +3,7 @@
 
 使用方法：
 1.添加数据源代理并实现代理方法:YJPageViewControllerDataSource
+
     dataSource = self
     //提供每个子控制器的初始化方法
     func pageViewController(subVcForType: UIViewController.Type, title: String?, idx: Int) -> UIViewController
@@ -10,6 +11,7 @@
     func pageViewControllerObserveredScrollView(subVc: UIViewController, title: String?, idx: Int) -> UIScrollView?
     
 2.添加代理并实现代理方法（可选）:YJPageViewControllerDelegate
+
     delegate = self
     //切换子控制器后的回调
     func pageViewController(didSelectedIdx index: Int)
@@ -22,14 +24,19 @@
      - parameter subVCs: 子控制器类型数组
      - parameter titles: 用来标记子控制器的名字
      */
+     
     func setup(subVCs: [UIViewController.Type], titles: [String]? = nil)
+    
 5.设置透视图（可选，可自定义）
+
     topView = UIView()
     //必须设置高度
     topView?.frame = CGRect(x: 0, y: 0, width: view.bounds.size.width, height: 250)
     //如果有topView但不需要滚动，可修改needScrollTopViewIfHas为false
     needScrollTopViewIfHas = false
+    
 6.设置标题栏视图（可选，可自定义）
+
     titlesView = YJTitlesView()
     //设置高度    
     titleViewH = 40
@@ -45,6 +52,7 @@
     
 
 其他一些可用的属性及方法
+
     /// 当前展示的子控制器
     var currentVc: UIViewController?
     /// 当前展示的子控制器的坐标
@@ -53,6 +61,7 @@
     var remeberLocation = true
     
 注意点：
+
     1.该控制器的根视图为UIScrollView
     2.func setup(subVCs: [UIViewController.Type], titles: [String]? = nil)必须调用
     3./**
