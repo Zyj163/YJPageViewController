@@ -1,6 +1,8 @@
 # YJPageViewController
 带头视图的分页控制器
 
+![image](https://github.com/Zyj163/YJPageViewController/blob/master/YJPagerViewController/效果图.gif)
+
 使用方法：
 1.添加数据源代理并实现代理方法:YJPageViewControllerDataSource
 
