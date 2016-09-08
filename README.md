@@ -18,13 +18,12 @@
     
     //当前pageView的contentOffset，如果想给titlesView加动画，可以在这里加，或者在这里更早的选择selectedIdx
     func pageViewController(didScroll contentOffset: CGPoint)
-4./**
+4.
+    /**
      初始化设置，必须调用
-     
      - parameter subVCs: 子控制器类型数组
      - parameter titles: 用来标记子控制器的名字
      */
-     
     func setup(subVCs: [UIViewController.Type], titles: [String]? = nil)
     
 5.设置透视图（可选，可自定义）
