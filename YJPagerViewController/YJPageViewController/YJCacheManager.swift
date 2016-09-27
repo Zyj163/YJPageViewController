@@ -37,20 +37,20 @@ class YJCacheManager: NSObject {
     
     var memoryWarningCount = 0
     
-    private lazy var memCache : NSCache = {
-        let memCache = NSCache()
-        memCache.countLimit = self.cachePolicy.limitCount
+    fileprivate lazy var memCache : NSCache<NSNumber, AnyObject> = { [weak self] in
+        let memCache = NSCache<NSNumber, AnyObject>()
+        memCache.countLimit = self!.cachePolicy.limitCount
         return memCache
         }()
     
     subscript(idx: Int) -> AnyObject? {
         get {
-            return memCache.objectForKey(idx)
+            return memCache.object(forKey: NSNumber(value: idx))
         }
         
         set {
             if let newValue = newValue {
-                memCache.setObject(newValue, forKey: idx)
+                memCache.setObject(newValue, forKey: NSNumber(value: idx))
             }
         }
     }
@@ -61,20 +61,20 @@ class YJCacheManager: NSObject {
         
         cachePolicy = YJCachePolicy.lowMemory
         
-        NSObject.cancelPreviousPerformRequestsWithTarget(self, selector: #selector(growCachePolicyAfterMemoryWarning), object: nil)
-        NSObject.cancelPreviousPerformRequestsWithTarget(self, selector: #selector(growCachePolicyToHigh), object: nil)
+        NSObject.cancelPreviousPerformRequests(withTarget: self, selector: #selector(growCachePolicyAfterMemoryWarning), object: nil)
+        NSObject.cancelPreviousPerformRequests(withTarget: self, selector: #selector(growCachePolicyToHigh), object: nil)
         
         clear()
         
         //如果收到内存警告次数小于 3，一段时间后切换到模式 Balanced
         if memoryWarningCount < 3 {
-            performSelector(#selector(growCachePolicyAfterMemoryWarning), withObject: nil, afterDelay: 3.0, inModes: [NSRunLoopCommonModes])
+            perform(#selector(growCachePolicyAfterMemoryWarning), with: nil, afterDelay: 3.0, inModes: [RunLoopMode.commonModes])
         }
     }
     
     func growCachePolicyAfterMemoryWarning() {
         cachePolicy = YJCachePolicy.balanced
-        performSelector(#selector(growCachePolicyToHigh), withObject: nil, afterDelay: 2.0, inModes: [NSRunLoopCommonModes])
+        perform(#selector(growCachePolicyToHigh), with: nil, afterDelay: 2.0, inModes: [RunLoopMode.commonModes])
     }
     
     func growCachePolicyToHigh() {

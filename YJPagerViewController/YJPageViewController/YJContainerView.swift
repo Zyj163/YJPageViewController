@@ -10,7 +10,7 @@ import UIKit
 
 class YJContainerView: UIScrollView {
 
-    private lazy var views = [Int : UIView]()
+    fileprivate lazy var views = [Int : UIView]()
     
     var maxIdx = 0
     
@@ -34,7 +34,7 @@ class YJContainerView: UIScrollView {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        pagingEnabled = true
+        isPagingEnabled = true
         bounces = false
         showsHorizontalScrollIndicator = false
         showsVerticalScrollIndicator = false
@@ -52,11 +52,11 @@ class YJContainerView: UIScrollView {
             
             let width = bounds.size.width
             let height = bounds.size.height
-            subview.frame = CGRectMake(CGFloat(index) * width, 0, width, height - contentInset.top - contentInset.bottom)
+            subview.frame = CGRect(x: CGFloat(index) * width, y: 0, width: width, height: height - contentInset.top - contentInset.bottom)
         }
     }
 
-    func changeTo(idx: Int, animation: Bool) {
+    func changeTo(_ idx: Int, animation: Bool) {
         setContentOffset(CGPoint(x: CGFloat(idx) * bounds.size.width, y: contentOffset.y), animated: animation)
     }
 }

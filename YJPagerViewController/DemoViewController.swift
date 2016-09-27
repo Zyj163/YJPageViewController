@@ -52,7 +52,7 @@ class DemoViewController: YJPagerViewController {
 
 extension DemoViewController: YJPageViewControllerDataSource {
     //提供每个子控制器的初始化方法
-    func pageViewController(subVcForType: UIViewController.Type, title: String?, idx: Int) -> UIViewController {
+    func pageViewController(_ subVcForType: UIViewController.Type, title: String?, idx: Int) -> UIViewController {
         if subVcForType is TempTableViewController.Type {
             return TempTableViewController()
         }else if subVcForType is TempScrollViewController.Type {
@@ -67,7 +67,7 @@ extension DemoViewController: YJPageViewControllerDataSource {
         }
     }
     //提供子控制器中需要监听的UIScrollView
-    func pageViewControllerObserveredScrollView(subVc: UIViewController, title: String?, idx: Int) -> UIScrollView? {
+    func pageViewControllerObserveredScrollView(_ subVc: UIViewController, title: String?, idx: Int) -> UIScrollView? {
         if subVc.self is TempTableViewController {
             let subVc = subVc as! TempTableViewController
             return subVc.tableView

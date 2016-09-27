@@ -17,7 +17,7 @@ class TempTableViewController2: UIViewController {
 
         tableView = UITableView()
         tableView!.dataSource = self
-        tableView!.registerClass(UITableViewCell.self, forCellReuseIdentifier: "cell")
+        tableView!.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
         
         view.addSubview(tableView!)
     }
@@ -32,12 +32,12 @@ class TempTableViewController2: UIViewController {
 
 
 extension TempTableViewController2: UITableViewDataSource {
-    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return 100
     }
     
-    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCellWithIdentifier("cell", forIndexPath: indexPath)
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
         
         cell.backgroundColor = randomColor()
         cell.textLabel?.text = "commonViewControllerWhichHasTableView"

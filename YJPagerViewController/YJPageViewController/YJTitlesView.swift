@@ -10,9 +10,9 @@ import UIKit
 
 class YJTitlesView: UIScrollView {
 
-    var selectedIdxHanlder: ((preIdx: Int, idx: Int) -> Void)?
+    var selectedIdxHanlder: ((_ preIdx: Int, _ idx: Int) -> Void)?
     
-    private lazy var titleBtns = [UIButton]()
+    fileprivate lazy var titleBtns = [UIButton]()
     
     var titleBtnW : CGFloat = 0.0
     
@@ -22,15 +22,15 @@ class YJTitlesView: UIScrollView {
     
     var indicatorInset : CGFloat = 3.0
     
-    var titleNormalFont : UIFont = UIFont.systemFontOfSize(12)
+    var titleNormalFont : UIFont = UIFont.systemFont(ofSize: 12)
     
-    var titleSelectedFont : UIFont = UIFont.systemFontOfSize(14)
+    var titleSelectedFont : UIFont = UIFont.systemFont(ofSize: 14)
     
-    var titleNormalColor = UIColor.grayColor()
+    var titleNormalColor = UIColor.gray
     
-    var titleSelectedColor = UIColor.whiteColor()
+    var titleSelectedColor = UIColor.white
     
-    var titleNormalBackgroundColor : UIColor = UIColor.whiteColor()
+    var titleNormalBackgroundColor : UIColor = UIColor.white
     
     var titleSelectedBackgroundColor : UIColor = UIColor(red: 92.0/255.0, green: 119/255.0, blue: 223/255.0, alpha: 1)
     
@@ -43,13 +43,13 @@ class YJTitlesView: UIScrollView {
             if let titles = titles {
                 for idx in 0..<titles.count {
                     let btn = UIButton()
-                    btn.setTitle(titles[idx], forState: .Normal)
+                    btn.setTitle(titles[idx], for: UIControlState())
                     
-                    btn.setTitleColor(titleNormalColor, forState: .Normal)
-                    btn.setTitleColor(titleSelectedColor, forState: .Disabled)
+                    btn.setTitleColor(titleNormalColor, for: UIControlState())
+                    btn.setTitleColor(titleSelectedColor, for: .disabled)
                     
-                    btn.setBackgroundImage(titleNormalBackgroundImage, forState: .Normal)
-                    btn.setBackgroundImage(titleSelectedBackgroundImage, forState: .Disabled)
+                    btn.setBackgroundImage(titleNormalBackgroundImage, for: UIControlState())
+                    btn.setBackgroundImage(titleSelectedBackgroundImage, for: .disabled)
                     
                     btn.titleLabel?.font = titleNormalFont
                     
@@ -58,7 +58,7 @@ class YJTitlesView: UIScrollView {
                     titleBtns.append(btn)
                     addSubview(btn)
                     
-                    btn.addTarget(self, action: #selector(clickOnItem(_:)), forControlEvents: .TouchUpInside)
+                    btn.addTarget(self, action: #selector(clickOnItem(_:)), for: .touchUpInside)
                 }
             }
         }
@@ -72,7 +72,7 @@ class YJTitlesView: UIScrollView {
             }
             if selectedIdx >= 0 && newValue >= 0 {
                 let btn = titleBtns[selectedIdx]
-                btn.enabled = true
+                btn.isEnabled = true
                 
                 btn.backgroundColor = self.titleNormalBackgroundColor
                 btn.titleLabel?.font = self.titleNormalFont
@@ -87,7 +87,7 @@ class YJTitlesView: UIScrollView {
                 return
             }
             let btn = titleBtns[selectedIdx]
-            btn.enabled = false
+            btn.isEnabled = false
             
             btn.backgroundColor = self.titleSelectedBackgroundColor
             btn.titleLabel?.font = self.titleSelectedFont
@@ -99,7 +99,7 @@ class YJTitlesView: UIScrollView {
             }
             
             if let hanlder = selectedIdxHanlder {
-                hanlder(preIdx: oldValue, idx: selectedIdx)
+                hanlder(oldValue, selectedIdx)
             }
         }
     }
@@ -109,8 +109,8 @@ class YJTitlesView: UIScrollView {
         showsVerticalScrollIndicator = false
         showsHorizontalScrollIndicator = false
         
-        backgroundColor = UIColor.grayColor()
-        layer.borderColor = UIColor.grayColor().CGColor
+        backgroundColor = UIColor.gray
+        layer.borderColor = UIColor.gray.cgColor
         layer.borderWidth = 0.3
     }
     
@@ -118,8 +118,8 @@ class YJTitlesView: UIScrollView {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func clickOnItem(btn: UIButton) {
-        let idx = titleBtns.indexOf(btn)
+    func clickOnItem(_ btn: UIButton) {
+        let idx = titleBtns.index(of: btn)
         
         if selectedIdx != -1 {
             selectedIdx = idx!
@@ -129,14 +129,14 @@ class YJTitlesView: UIScrollView {
     var preSize: CGSize = CGSize.zero
     override func layoutSubviews() {
         super.layoutSubviews()
-        if CGSizeEqualToSize(preSize, bounds.size) {
+        if preSize.equalTo(bounds.size) {
             return
         }
         preSize = bounds.size
         
         if titleBtnW <= 0.5 {
             
-            let w = titleBtns.reduce(0, combine: { (result, btn) -> CGFloat in
+            let w = titleBtns.reduce(0, { (result, btn) -> CGFloat in
                 btn.sizeToFit()
                 btn.bounds.size.width += 36
                 return result + btn.bounds.size.width
@@ -147,7 +147,7 @@ class YJTitlesView: UIScrollView {
             
         }
         
-        lineButNotEqualLayout(titleBtns, inset: UIEdgeInsetsZero, space: titleBtnSpace) { [weak self]  (idx, view) in
+        lineButNotEqualLayout(titleBtns, inset: UIEdgeInsets.zero, space: titleBtnSpace) { [weak self]  (idx, view) in
             if self!.titleBtnW > 0.5 {
                 view.frame.size.width = self!.titleBtnW
             }
@@ -160,18 +160,18 @@ class YJTitlesView: UIScrollView {
         contentSize = CGSize(width: width, height: bounds.size.height)
     }
     
-    func update(percent: CGFloat) {
+    func update(_ percent: CGFloat) {
         
     }
 }
 
-func lineButNotEqualLayout(views: [UIView], inset: UIEdgeInsets, space: CGFloat, setting:((idx: Int, view: UIView)->())?) {
+func lineButNotEqualLayout(_ views: [UIView], inset: UIEdgeInsets, space: CGFloat, setting:((_ idx: Int, _ view: UIView)->())?) {
     
     var preView: UIView?
     
-    for (i, view) in views.enumerate() {
+    for (i, view) in views.enumerated() {
         view.frame.origin.y = inset.top
-        setting?(idx: i, view: view)
+        setting?(i, view)
         if i == 0 {
             view.frame.origin.x = inset.left
         } else {
